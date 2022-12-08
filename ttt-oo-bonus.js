@@ -4,6 +4,7 @@ class Square {
   static UNUSED_SQUARE = ' ';
   static HUMAN_MARKER = 'X';
   static COMPUTER_MARKER = 'O';
+  static MIDDLE_SQUARE = 5;
 
   constructor(marker = Square.UNUSED_SQUARE) {
     this.marker = marker;
@@ -180,39 +181,42 @@ class TTTGame {
   }
 
   computerMoves() {
-    let choice = this.strategicComputerMove('offense');
+    let choice = this.offensiveComputerMove();
 
     if (!choice) {
-      choice = this.strategicComputerMove('defense');
+      choice = this.defensiveComputerMove();
     }
 
     if (!choice) {
-      const choices = this.board.unusedSquares();
-      choice = choices[Math.floor(Math.random() * choices.length)];
+      choice = this.chooseMiddleSquare();
+    }
+
+    if (!choice) {
+      choice = this.chooseRandomSquare();
     }
 
     this.board.markSquareAt(choice, this.computer.marker);
   }
 
-  strategicComputerMove(type) {
+  offensiveComputerMove() {
+    return this.findGameEndingSquare(this.computer);
+  }
+
+  defensiveComputerMove() {
+    return this.findGameEndingSquare(this.human);
+  }
+
+  findGameEndingSquare(player) {
     for (let idx = 0; idx < TTTGame.WINNING_ROWS.length; idx++) {
       const row = TTTGame.WINNING_ROWS[idx];
-
-      let player;
-      if (type === 'offense') {
-        player = this.computer;
-      } else if (type === 'defense') {
-        player = this.human;
-      }
-
-      const sq = this.atRiskSquare(row, player);
+      const sq = this.gameEndingSquare(row, player);
       if (sq) return sq;
     }
 
     return null;
   }
 
-  atRiskSquare(row, player) {
+  gameEndingSquare(row, player) {
     if (this.board.countMarkersFor(player, row) === 2) {
       const emptySq = row.find(sq => this.board.isUnusedSquare(sq));
 
@@ -222,6 +226,20 @@ class TTTGame {
     }
 
     return null;
+  }
+
+  chooseMiddleSquare() {
+    const midSqMarker = this.board.squares[Square.MIDDLE_SQUARE].getMarker();
+    if (midSqMarker === Square.UNUSED_SQUARE) {
+      return Square.MIDDLE_SQUARE;
+    }
+
+    return null;
+  }
+
+  chooseRandomSquare() {
+    const choices = this.board.unusedSquares();
+    return choices[Math.floor(Math.random() * choices.length)];
   }
 
   displayWelcomeMessage() {
