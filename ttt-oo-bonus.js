@@ -180,9 +180,11 @@ class TTTGame {
   }
 
   computerMoves() {
-    let choice;
+    let choice = this.strategicComputerMove('offense');
 
-    choice = this.defensiveComputerMove();
+    if (!choice) {
+      choice = this.strategicComputerMove('defense');
+    }
 
     if (!choice) {
       const choices = this.board.unusedSquares();
@@ -192,18 +194,26 @@ class TTTGame {
     this.board.markSquareAt(choice, this.computer.marker);
   }
 
-  defensiveComputerMove() {
+  strategicComputerMove(type) {
     for (let idx = 0; idx < TTTGame.WINNING_ROWS.length; idx++) {
       const row = TTTGame.WINNING_ROWS[idx];
-      const sq = this.atRiskSquare(row);
+
+      let player;
+      if (type === 'offense') {
+        player = this.computer;
+      } else if (type === 'defense') {
+        player = this.human;
+      }
+
+      const sq = this.atRiskSquare(row, player);
       if (sq) return sq;
     }
 
     return null;
   }
 
-  atRiskSquare(row) {
-    if (this.board.countMarkersFor(this.human, row) === 2) {
+  atRiskSquare(row, player) {
+    if (this.board.countMarkersFor(player, row) === 2) {
       const emptySq = row.find(sq => this.board.isUnusedSquare(sq));
 
       if (emptySq !== undefined) {
