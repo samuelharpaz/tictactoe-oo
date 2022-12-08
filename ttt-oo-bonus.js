@@ -66,7 +66,11 @@ class Board {
 
   unusedSquares() {
     const keys = Object.keys(this.squares);
-    return keys.filter(key => this.squares[key].isAvailable());
+    return keys.filter(key => this.isUnusedSquare(key));
+  }
+
+  isUnusedSquare(sq) {
+    return this.squares[sq].isAvailable();
   }
 
   isFull() {
@@ -176,10 +180,38 @@ class TTTGame {
   }
 
   computerMoves() {
-    const choices = this.board.unusedSquares();
+    let choice;
 
-    const choice = choices[Math.floor(Math.random() * choices.length)];
+    choice = this.defensiveComputerMove();
+
+    if (!choice) {
+      const choices = this.board.unusedSquares();
+      choice = choices[Math.floor(Math.random() * choices.length)];
+    }
+
     this.board.markSquareAt(choice, this.computer.marker);
+  }
+
+  defensiveComputerMove() {
+    for (let idx = 0; idx < TTTGame.WINNING_ROWS.length; idx++) {
+      const row = TTTGame.WINNING_ROWS[idx];
+      const sq = this.atRiskSquare(row);
+      if (sq) return sq;
+    }
+
+    return null;
+  }
+
+  atRiskSquare(row) {
+    if (this.board.countMarkersFor(this.human, row) === 2) {
+      const emptySq = row.find(sq => this.board.isUnusedSquare(sq));
+
+      if (emptySq !== undefined) {
+        return emptySq;
+      }
+    }
+
+    return null;
   }
 
   displayWelcomeMessage() {
