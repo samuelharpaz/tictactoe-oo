@@ -340,7 +340,7 @@ class TwentyOneGame {
       return total + this.valueOf(curr);
     }, 0);
 
-    hand.filter(card => card.rank === 'A').forEach(_ => {
+    hand.filter(card => card.rank === 'A' && !card.isHidden()).forEach(_ => {
       if (sum > TwentyOneGame.MAX_SCORE) sum -= ACE_VALUE_DIFFERENCE;
     });
 
