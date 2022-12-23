@@ -42,7 +42,7 @@ class Card {
     } else if (['H', 'D'].includes(suit)) {
       return `${this.getRank()}${chalk.red(suitSymbol)}`;
     } else {
-      return `${this.getRank()}${chalk.white.bgBlack(suitSymbol)}`;
+      return `${this.getRank()}${chalk.white.bgGray(suitSymbol)}`;
     }
   }
 
@@ -273,7 +273,7 @@ class TwentyOneGame {
     this.prompt('Would you like to hit (h) or stay (s)?');
     let response = readline.question().trim().toLowerCase();
 
-    while (!['h', 's'].includes(response)) {
+    while (!['h', 'hit', 's', 'stay'].includes(response)) {
       this.prompt("Oops, that's not a valid response. Please enter h for hit or s for stay:");
       response = readline.question().trim().toLowerCase();
     }
@@ -291,7 +291,7 @@ class TwentyOneGame {
   playerTurn() {
     while (true) {
       let response = this.promptHitStay();
-      if (response === 's') break;
+      if (['s', 'stay'].includes(response)) break;
 
       this.displayGameInfo();
       this.prompt('You chose to hit.');
